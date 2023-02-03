@@ -1,6 +1,6 @@
 package net.xdob.cmd4j.service;
 
-import net.xdob.cmd4j.annotation.Rank;
+import net.xdob.cmd4j.annotation.Priority;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +16,6 @@ public interface ServiceFactory {
    * @return
    */
   default <T> Comparator<T> beanComparator() {
-    return Comparator.comparingInt(e -> (e instanceof RankSupport) ? ((RankSupport) e).rank() : Optional.ofNullable(e.getClass().getAnnotation(Rank.class)).map(r -> r.value()).orElse(0));
+    return Comparator.comparingInt(e -> (e instanceof PrioritySupport) ? ((PrioritySupport) e).priority() : Optional.ofNullable(e.getClass().getAnnotation(Priority.class)).map(r -> r.value()).orElse(0));
   }
 }
