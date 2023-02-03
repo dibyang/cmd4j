@@ -1,3 +1,4 @@
+
 buildscript {
   repositories {
     mavenLocal()
@@ -22,6 +23,16 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'net.researchgate.release'
 
+
+/**
+ * signing.properties 文件内容示例如下
+ * signing.keyId=xx
+ * signing.password=xxx
+ * signing.secretKeyRingFile=C:/Users/admin/.gnupg/**_SECRET.gpg
+ *
+ * ossrhUsername=xx
+ * ossrhPassword=xxx
+ */
 File signing_cfg = new File("$project.rootDir/signing.properties")
 if(signing_cfg.exists()) {
   Properties props = new Properties()
@@ -35,6 +46,7 @@ if(signing_cfg.exists()) {
     sign configurations.archives
   }
 }
+
 
 release {
   failOnUnversionedFiles = true
@@ -59,146 +71,149 @@ release {
 }
 
 
-afterReleaseBuild.dependsOn uploadArchives
+subprojects {
 
-configurations {
-  inline
-  compile.extendsFrom(inline)
-}
-
-configurations.all {
-  resolutionStrategy {
-    // cache dynamic versions for 10 seconds
-    cacheDynamicVersionsFor 10, 'seconds'
-    // don't cache changing modules at all
-    cacheChangingModulesFor 0, 'seconds'
-  }
-}
-
-sourceSets {
-  main {
-    java {
-      srcDirs = ['src/main/java']
-    }
-    resources {
-      srcDirs = ['src/main/resources']
+  buildscript {
+    repositories {
+      mavenLocal()
+      maven { url 'https://maven.aliyun.com/repository/public/' }
+      mavenCentral()
     }
   }
-  test {
-    java {
-      srcDirs = ['src/test/java', 'src/sample/java']
-    }
-    resources {
-      srcDirs = ['src/test/resources']
+
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'signing'
+
+  // 将构建的包签名
+  signing {
+    sign configurations.archives
+  }
+
+  afterReleaseBuild.dependsOn uploadArchives
+
+//    configurations {
+//        inline
+//        compile.extendsFrom(inline)
+//        plugin{
+//            transitive = false
+//        }
+//    }
+  configurations.all {
+    resolutionStrategy {
+      // cache dynamic versions for 10 seconds
+      cacheDynamicVersionsFor 10, 'seconds'
+      // don't cache changing modules at all
+      cacheChangingModulesFor 0, 'seconds'
     }
   }
-}
+
+  tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+  }
+
+  group = project.rootProject.group
+  version = project.rootProject.version
 
 
-
-sourceCompatibility = project.jdkVersion
-targetCompatibility = project.jdkVersion
-
-repositories {
-  mavenLocal()
-  maven { url 'https://maven.aliyun.com/repository/public/' }
-  mavenCentral()
-}
-
-dependencies {
-  implementation 'org.slf4j:slf4j-api:1.7.25'
-  implementation("org.fusesource.jansi:jansi:2.4.0")
-  //implementation("net.java.dev.jna:jna:5.10.0")
-  compile("org.jline:jline:${jline_version}")
-  compile("me.tongfei:progressbar:0.9.3")
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
-
-processResources {
-  filter org.apache.tools.ant.filters.ReplaceTokens, beginToken : '${', endToken : '}',tokens:['project.version': project.version]
-}
-
-tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-}
-
-//对于典型的 Java 项目，您可以添加一个javadocJar以及一个 sourcesJar任务
-task javadocJar(type: Jar) {
-  classifier = 'javadoc'
-  from javadoc
-}
-
-task sourcesJar(type: Jar) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-// javadoc 配置，这里是自定义了 java doc 的一些配置
-javadoc {
-  description = "Generates project-level javadoc for use in -javadoc jar"
-
-  options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-  options.author = true
-  options.version = true
-  options.header = project.name
-  options.addStringOption('Xdoclint:none', '-quiet')
-
-  // suppress warnings due to cross-module @see and @link references;
-  // note that global 'api' task does display all warnings.
-  logging.captureStandardError LogLevel.INFO
-  logging.captureStandardOutput LogLevel.INFO // suppress "## warnings" message
-  options.encoding = "UTF-8"  //编码一定要配置否则直接出错
-  options.charSet = 'UTF-8'
-}
-
-// 并将它们与项目 jar 本身一起连接到 artifacts 集合中：
-artifacts {
-  archives javadocJar, sourcesJar
-}
+  sourceCompatibility = project.rootProject.jdkVersion
+  targetCompatibility = project.rootProject.jdkVersion
 
 
-uploadArchives {
   repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+    mavenLocal()
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    mavenCentral()
+  }
 
-      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: findProperty("ossrhUsername")?:"", password: findProperty("ossrhPassword")?:"")
-      }
+  dependencies {
 
-      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: findProperty("ossrhUsername")?:"", password: findProperty("ossrhPassword")?:"")
-      }
+    compile("org.slf4j:slf4j-api:${slf4j_version}")
+    testCompile("junit:junit:4.12")
+  }
 
-      pom.project {
-        name 'cmd4j'
-        packaging 'jar'
-        // optionally artifactId can be defined here
-        description "the jmDNS library"
-        url 'https://github.com/dibyang/jmdns2'
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-        scm {
-          connection 'scm:git:https://github.com/dibyang/jmdns2.git'
-          developerConnection 'scm:git:https://github.com/dibyang/jmdns2.git'
-          url 'https://github.com/dibyang/jmdns2.git'
+        repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+          authentication(userName: findProperty("ossrhUsername")?:"", password: findProperty("ossrhPassword")?:"")
         }
 
-        licenses {
-          license {
-            name 'The Apache License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+          authentication(userName: findProperty("ossrhUsername")?:"", password: findProperty("ossrhPassword")?:"")
+        }
+
+        pom.project {
+          name 'pf4boot'
+          packaging 'jar'
+          // optionally artifactId can be defined here
+          description "基于pf4j 设计的Spring Boot插件框架"
+          url 'https://github.com/dibyang/pf4boot'
+
+          scm {
+            connection 'scm:git:https://github.com/dibyang/pf4boot.git'
+            developerConnection 'scm:git:https://github.com/dibyang/pf4boot.git'
+            url 'https://github.com/dibyang/pf4boot.git'
           }
-        }
 
-        developers {
-          developer {
-            id 'yangzj'
-            name 'Yang zhijian'
-            email '3227817@qq.com'
+          licenses {
+            license {
+              name 'GNU Lesser General Public License v3.0'
+              url 'https://www.gnu.org/licenses/lgpl.html'
+            }
+          }
+
+          developers {
+            developer {
+              id 'yangzj'
+              name 'Yang zhijian'
+              email '3227817@qq.com'
+            }
           }
         }
       }
     }
   }
-}
 
+  //对于典型的 Java 项目，您可以添加一个javadocJar以及一个 sourcesJar任务
+  task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+  }
+
+  task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+
+  // javadoc 配置，这里是自定义了 java doc 的一些配置
+  javadoc {
+    description = "Generates project-level javadoc for use in -javadoc jar"
+
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    options.author = true
+    options.version = true
+    options.header = project.name
+    options.addStringOption('Xdoclint:none', '-quiet')
+
+    // suppress warnings due to cross-module @see and @link references;
+    // note that global 'api' task does display all warnings.
+    logging.captureStandardError LogLevel.INFO
+    logging.captureStandardOutput LogLevel.INFO // suppress "## warnings" message
+    options.encoding = "UTF-8"  //编码一定要配置否则直接出错
+    options.charSet = 'UTF-8'
+  }
+
+
+  // 并将它们与项目 jar 本身一起连接到 artifacts 集合中：
+  artifacts {
+    archives javadocJar, sourcesJar
+  }
+
+
+
+
+
+}
