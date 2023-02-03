@@ -35,14 +35,14 @@ public class Main {
     cmdSupport = new CmdSupportService(appContext, serviceFactory.getBeanList(ValuesGetterRegister.class), serviceFactory.getBeanList(Cmd.class));
 
     //构建命令自动完成器
-    ProxyCompleter t4mCompleter = new ProxyCompleter(new CmdMgrCompleter(
+    ProxyCompleter proxyCompleter = new ProxyCompleter(new CmdMgrCompleter(
         cmdSupport
     ));
-    cmdSupport.setProxyCompleter(t4mCompleter);
+    cmdSupport.setProxyCompleter(proxyCompleter);
     //构建一个行输入读取器
     LineReader lineReader = LineReaderBuilder.builder()
         .terminal(terminal)
-        .completer(t4mCompleter)
+        .completer(proxyCompleter)
         .build();
     cmdSupport.setLineReader(lineReader);
     //命令提示符
@@ -50,7 +50,7 @@ public class Main {
     //循环读取输入直到退出
     while (true) {
       try {
-        String line = lineReader.readLine(cmdSupport.getPrompt());
+        String line = lineReader.readLine(appContext.getPrompt());
         cmdSupport.handle(line);
       } catch (UserInterruptException e) {
         // Do nothing

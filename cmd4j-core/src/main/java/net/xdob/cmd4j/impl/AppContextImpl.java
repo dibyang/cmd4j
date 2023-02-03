@@ -9,6 +9,7 @@ import java.util.Map;
 public class AppContextImpl implements AppContext {
   public static final String USER_TOKEN = "user_token";
   private volatile String space;
+  private volatile String prompt = "#>";
   private final Map<String,Object> map = Maps.newConcurrentMap();
 
 
@@ -37,6 +38,16 @@ public class AppContextImpl implements AppContext {
   @Override
   public void setSpace(String space) {
     this.space = space;
+  }
+
+  @Override
+  public String getPrompt() {
+    return prompt;
+  }
+
+  @Override
+  public void setPrompt(String prompt) {
+    this.prompt = Strings.nullToEmpty(prompt);
   }
 
   @Override

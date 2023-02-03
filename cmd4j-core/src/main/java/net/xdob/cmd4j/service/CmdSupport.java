@@ -27,7 +27,6 @@ public interface CmdSupport extends ValuesCompleterSupport {
   List<Completer> getArgCompleters(String name);
   LineReader getLineReader();
   void setLineReader(LineReader lineReader);
-  String getPrompt();
   ProxyCompleter getProxyCompleter();
   void setProxyCompleter(ProxyCompleter completer);
   ThreadLocal<CmdContext> getContextThreadLocal();

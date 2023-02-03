@@ -80,12 +80,6 @@ public class CmdSupportService implements CmdSupport {
     this.lineReader = lineReader;
   }
 
-  @Override
-  public String getPrompt() {
-    String prompt = "mnode>";
-
-    return prompt;
-  }
 
   @Override
   public ProxyCompleter getProxyCompleter() {
