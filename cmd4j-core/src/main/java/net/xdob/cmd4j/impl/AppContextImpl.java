@@ -5,6 +5,10 @@ import com.google.common.collect.Maps;
 import net.xdob.cmd4j.service.AppContext;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class AppContextImpl implements AppContext {
   public static final String USER_TOKEN = "user_token";
@@ -12,7 +16,9 @@ public class AppContextImpl implements AppContext {
   private volatile String prompt = "#>";
   private final Map<String,Object> map = Maps.newConcurrentMap();
 
-
+  final ExecutorService executorService = new ThreadPoolExecutor(1, 3,
+      0L, TimeUnit.MILLISECONDS,
+      new LinkedBlockingQueue<Runnable>());
 
 
   @Override
@@ -63,6 +69,26 @@ public class AppContextImpl implements AppContext {
   @Override
   public <T> T getData(String key, Class<T> clazz) {
     return (T)map.get(key);
+  }
+
+  @Override
+  public void submit(Runnable runnable) {
+    executorService.submit(runnable);
+  }
+
+  @Override
+  public void delay(int ms) {
+    try {
+      Thread.sleep(ms);
+    } catch (InterruptedException e) {
+      //e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void exit() {
+    executorService.shutdown();
+    System.exit(0);
   }
 
 }

@@ -14,9 +14,7 @@ import java.util.function.Predicate;
  */
 public interface CmdContext {
   Cmd4jOut newT4mOut();
-  void submit(Runnable runnable);
-  void delay(int ms);
-  void exitT4m();
+  void exit();
   boolean isRunning();
   void setRunning(boolean running);
   String readLine();

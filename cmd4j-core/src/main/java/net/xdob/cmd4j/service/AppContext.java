@@ -10,4 +10,7 @@ public interface AppContext {
   <T> void setData(String key, T data);
   void removeData(String key);
   <T> T getData(String key, Class<T> clazz);
+  void submit(Runnable runnable);
+  void delay(int ms);
+  void exit();
 }

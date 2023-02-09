@@ -32,7 +32,7 @@ public class Main {
         //.color(true)
         .build();
     AppContext appContext = new AppContextImpl();
-    cmdSupport = new CmdSupportService(appContext, serviceFactory.getBeanList(ValuesGetterRegister.class), serviceFactory.getBeanList(Cmd.class));
+    cmdSupport = new CmdSupportService(appContext, serviceFactory.getBeans(ValuesGetterRegister.class), serviceFactory.getBeans(Cmd.class));
 
     //构建命令自动完成器
     ProxyCompleter proxyCompleter = new ProxyCompleter(new CmdMgrCompleter(
@@ -51,7 +51,7 @@ public class Main {
     while (true) {
       try {
         String line = lineReader.readLine(appContext.getPrompt());
-        cmdSupport.handle(line);
+        cmdSupport.doCommand(line);
       } catch (UserInterruptException e) {
         // Do nothing
         //System.out.println(e.getMessage());

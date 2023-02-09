@@ -21,14 +21,12 @@ public class CmdContextImpl implements CmdContext {
 
   private volatile boolean running = true;
 
-  private final ExecutorService executorService;
   private final CmdSupport cmdMgr;
   private final Cmd cmd;
   private final AppContext appContext;
 
 
-  public CmdContextImpl(ExecutorService executorService, CmdSupport cmdMgr, Cmd cmd, AppContext appContext) {
-    this.executorService = executorService;
+  public CmdContextImpl(CmdSupport cmdMgr, Cmd cmd, AppContext appContext) {
     this.cmdMgr = cmdMgr;
     this.cmd = cmd;
     this.appContext = appContext;
@@ -39,25 +37,13 @@ public class CmdContextImpl implements CmdContext {
     return new Cmd4JOutImpl(cmdMgr.getLineReader());
   }
 
-  @Override
-  public void submit(Runnable runnable) {
-    executorService.submit(runnable);
-  }
 
   @Override
-  public void delay(int ms) {
-    try {
-      Thread.sleep(ms);
-    } catch (InterruptedException e) {
-      //e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void exitT4m() {
+  public void exit() {
     Cmd4jOut out = newT4mOut();
     out.println("\nBye.");
-    System.exit(0);
+    appContext.exit();
+
   }
 
   @Override

@@ -46,10 +46,6 @@ public class CmdSupportService implements CmdSupport {
 
   private final ThreadLocal<CmdContext> contextThreadLocal = new ThreadLocal<>();
 
-  final ExecutorService executorService = new ThreadPoolExecutor(1, 3,
-    0L, TimeUnit.MILLISECONDS,
-    new LinkedBlockingQueue<Runnable>());
-
 
   private AppContext appContext;
 
@@ -102,11 +98,17 @@ public class CmdSupportService implements CmdSupport {
   }
 
   @Override
-  public void handle(String line) {
+  public void doCommand(String line) {
+    Cmd cmd = parseCmd(line);
+    runCmd(cmd);
+  }
+
+  private Cmd parseCmd(String line) {
+    Cmd cmd = null;
     final Finder finder = Finder.c(line);
     String name = finder.head(BLANK, f->f).getValue();
     if(name!=null&&!name.isEmpty()) {
-      Cmd cmd = getCmds().stream().filter(c -> c.getAllNames().contains(name)).findFirst().orElse(null);
+      cmd = getCmds().stream().filter(c -> c.getAllNames().contains(name)).findFirst().orElse(null);
       if (cmd != null) {
         try {
           List<Option> opts = Lists.newArrayList();
@@ -178,19 +180,6 @@ public class CmdSupportService implements CmdSupport {
               }
             }
           }
-          CmdContext context = new CmdContextImpl(executorService, this, cmd, appContext);
-          Cmd4jOut cmd4JOut = context.newT4mOut();
-          contextThreadLocal.set(context);
-          try {
-            cmd.preCmd(context);
-            cmd.doCmd(context);
-            cmd.postCmd(context);
-          } catch (Exception e) {
-            cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
-            LOG.warn("doCmd is error", e);
-            proxyCompleter.reset();
-          }
-          contextThreadLocal.set(null);
         } catch (Exception e) {
           System.err.println("arg is error :" + e.getMessage());
           LOG.warn("arg is error", e);
@@ -200,6 +189,24 @@ public class CmdSupportService implements CmdSupport {
         System.out.println("unknown command :" + line);
       }
     }
+    return cmd;
+  }
+
+
+  private void runCmd(Cmd cmd) {
+    CmdContext context = new CmdContextImpl( this, cmd, appContext);
+    Cmd4jOut cmd4JOut = context.newT4mOut();
+    contextThreadLocal.set(context);
+    try {
+      cmd.preCmd(context);
+      cmd.doCmd(context);
+      cmd.postCmd(context);
+    } catch (Exception e) {
+      cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
+      LOG.warn("doCmd is error", e);
+      proxyCompleter.reset();
+    }
+    contextThreadLocal.set(null);
   }
 
   private Option getOption(List<Option> opts, List<String> names) {

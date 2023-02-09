@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface CmdSupport extends ValuesCompleterSupport {
   Completer getCmdCompleter();
-  void handle(String line);
+  void doCommand(String line);
   List<CmdHelper> getHelper(String cmd, String space);
   List<Cmd> getCmds();
   Cmd getCmd(String name);

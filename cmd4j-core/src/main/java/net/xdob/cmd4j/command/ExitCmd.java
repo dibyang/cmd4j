@@ -25,7 +25,7 @@ public class ExitCmd extends BaseCmd{
 
   @Override
   public void doCmd(CmdContext context) {
-    context.exitT4m();
+    context.exit();
   }
 
 }
