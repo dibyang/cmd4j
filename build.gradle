@@ -146,22 +146,22 @@ subprojects {
         }
 
         pom.project {
-          name 'pf4boot'
+          name 'cmd4j'
           packaging 'jar'
           // optionally artifactId can be defined here
-          description "基于pf4j 设计的Spring Boot插件框架"
-          url 'https://github.com/dibyang/pf4boot'
+          description "支持快速构建命令行交互系统"
+          url 'https://github.com/dibyang/cmd4j'
 
           scm {
-            connection 'scm:git:https://github.com/dibyang/pf4boot.git'
-            developerConnection 'scm:git:https://github.com/dibyang/pf4boot.git'
-            url 'https://github.com/dibyang/pf4boot.git'
+            connection 'scm:git:https://github.com/dibyang/cmd4j.git'
+            developerConnection 'scm:git:https://github.com/dibyang/cmd4j.git'
+            url 'https://github.com/dibyang/cmd4j.git'
           }
 
           licenses {
             license {
-              name 'GNU Lesser General Public License v3.0'
-              url 'https://www.gnu.org/licenses/lgpl.html'
+              name 'Apache-2.0 license '
+              url 'http://www.apache.org/licenses/'
             }
           }
 
