@@ -1,8 +1,8 @@
 *.class
-build/*
 .idea
 *.iml
 /build/
 /.gradle/
 /.settings/
 signing.properties
+/*/build/
