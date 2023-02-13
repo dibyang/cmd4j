@@ -22,10 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -49,15 +45,17 @@ public class CmdSupportService implements CmdSupport {
 
   private AppContext appContext;
 
-  public CmdSupportService(AppContext appContext, List<ValuesGetterRegister> valuesGetterRegisters, List<Cmd> cmdList) {
+  public CmdSupportService(AppContext appContext) {
     this.appContext = appContext;
-    this.lineReader = lineReader;
+    List<ValuesGetterRegister> valuesGetterRegisters = appContext.getServiceFactory().getBeans(ValuesGetterRegister.class);
+    List<Cmd> cmdList = appContext.getServiceFactory().getBeans(Cmd.class);
     cmds.addAll(cmdList);
     completers.add(new ValuesCompleter(Cmd.CMD,v->{
       for (Cmd cmd : getCmds()) {
         v.add(cmd.name());
       }
     }));
+
     if(valuesGetterRegisters !=null){
       for (ValuesGetterRegister valuesGetterRegister : valuesGetterRegisters) {
         completers.add(new ValuesCompleter(valuesGetterRegister.getName(), valuesGetterRegister));

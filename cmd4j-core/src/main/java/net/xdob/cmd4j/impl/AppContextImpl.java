@@ -2,7 +2,10 @@ package net.xdob.cmd4j.impl;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.ls.luava.os.OSProxy;
+import com.ls.luava.os.OSProxyFactory;
 import net.xdob.cmd4j.service.AppContext;
+import net.xdob.cmd4j.service.ServiceFactory;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -14,12 +17,16 @@ public class AppContextImpl implements AppContext {
   public static final String USER_TOKEN = "user_token";
   private volatile String space;
   private volatile String prompt = "#>";
+  private ServiceFactory serviceFactory;
   private final Map<String,Object> map = Maps.newConcurrentMap();
 
   final ExecutorService executorService = new ThreadPoolExecutor(1, 3,
       0L, TimeUnit.MILLISECONDS,
       new LinkedBlockingQueue<Runnable>());
 
+  public AppContextImpl(ServiceFactory serviceFactory) {
+    this.serviceFactory = serviceFactory;
+  }
 
   @Override
   public void setToken(String token) {
@@ -89,6 +96,16 @@ public class AppContextImpl implements AppContext {
   public void exit() {
     executorService.shutdown();
     System.exit(0);
+  }
+
+  @Override
+  public OSProxy getOSProxy() {
+    return OSProxyFactory.factory.getOSProxy();
+  }
+
+  @Override
+  public ServiceFactory getServiceFactory() {
+    return serviceFactory;
   }
 
 }

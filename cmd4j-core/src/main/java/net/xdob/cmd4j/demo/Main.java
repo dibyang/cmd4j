@@ -31,8 +31,8 @@ public class Main {
         .system(true)
         //.color(true)
         .build();
-    AppContext appContext = new AppContextImpl();
-    cmdSupport = new CmdSupportService(appContext, serviceFactory.getBeans(ValuesGetterRegister.class), serviceFactory.getBeans(Cmd.class));
+    AppContext appContext = new AppContextImpl(serviceFactory);
+    cmdSupport = new CmdSupportService(appContext);
 
     //构建命令自动完成器
     ProxyCompleter proxyCompleter = new ProxyCompleter(new CmdMgrCompleter(

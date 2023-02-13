@@ -1,6 +1,7 @@
 package net.xdob.cmd4j.impl;
 
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.xdob.cmd4j.model.OutColor;
 import net.xdob.cmd4j.service.*;
@@ -8,9 +9,9 @@ import net.xdob.cmd4j.model.CmdHelper;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Predicate;
 
 /**
@@ -21,20 +22,20 @@ public class CmdContextImpl implements CmdContext {
 
   private volatile boolean running = true;
 
-  private final CmdSupport cmdMgr;
+  private final CmdSupport cmdSupport;
   private final Cmd cmd;
   private final AppContext appContext;
 
 
-  public CmdContextImpl(CmdSupport cmdMgr, Cmd cmd, AppContext appContext) {
-    this.cmdMgr = cmdMgr;
+  public CmdContextImpl(CmdSupport cmdSupport, Cmd cmd, AppContext appContext) {
+    this.cmdSupport = cmdSupport;
     this.cmd = cmd;
     this.appContext = appContext;
   }
 
   @Override
   public Cmd4jOut newT4mOut() {
-    return new Cmd4JOutImpl(cmdMgr.getLineReader());
+    return new Cmd4JOutImpl(cmdSupport.getLineReader());
   }
 
 
@@ -57,6 +58,19 @@ public class CmdContextImpl implements CmdContext {
   }
 
   @Override
+  public boolean confirm(String prompt,boolean defValue) {
+    boolean confirm = defValue;
+    String value = readLine(prompt,new StringsCompleter("yes","no")).trim();
+    if("yes".equalsIgnoreCase(value)||"y".equalsIgnoreCase(value)){
+      confirm = true;
+    }
+    if("no".equalsIgnoreCase(value)||"n".equalsIgnoreCase(value)){
+      confirm = false;
+    }
+    return confirm;
+  }
+
+  @Override
   public String readLine() {
     return readLine("q for quit>");
   }
@@ -64,6 +78,11 @@ public class CmdContextImpl implements CmdContext {
   @Override
   public String readLine(String prompt) {
     return readLine(prompt,(Character)null);
+  }
+
+  @Override
+  public String readLine(String prompt, Completer completer) {
+    return readLine(prompt, null, completer);
   }
 
   @Override
@@ -77,35 +96,50 @@ public class CmdContextImpl implements CmdContext {
       List<Completer> list = Lists.newArrayList();
       list.add(completer);
       list.add(NullCompleter.INSTANCE);
-      cmdMgr.getProxyCompleter().setCompleter(new ArgumentCompleter(list));
-
+      cmdSupport.getProxyCompleter().setCompleter(new ArgumentCompleter(list));
     }else{
-      cmdMgr.getProxyCompleter().reset();
+      cmdSupport.getProxyCompleter().reset();
     }
-    String line = cmdMgr.getLineReader().readLine(prompt, mask);
-    cmdMgr.getProxyCompleter().reset();
+    String line = cmdSupport.getLineReader().readLine(prompt, mask);
+    cmdSupport.getProxyCompleter().reset();
     running=!line.equalsIgnoreCase("q")&&!line.equalsIgnoreCase("quit");
+
     if(!running){
       return "";
     }
-    cmdMgr.getLineReader().printAbove("\033[1A");
+    cmdSupport.getLineReader().printAbove("\033[1A");
     return line;
   }
 
   @Override
   public String readLine(String prompt, Predicate<String> validator) {
+    return readLine(prompt,(Completer)null, validator);
+  }
+
+  @Override
+  public String readLine(String prompt, Completer completer, Predicate<String> validator) {
+
     Cmd4jOut cmd4JOut = this.newT4mOut();
-    String value = readLine(prompt).trim();
+    String value = readLine(prompt,completer).trim();
     while(!validator.test(value)){
       cmd4JOut.println("Input format is not valid.", OutColor.RED);
-      value = readLine(prompt);
+      value = readLine(prompt,completer);
     }
     return value;
   }
 
   @Override
+  public String readLine(String prompt, String oldValue, Predicate<String> validator) {
+    StringsCompleter completer = null;
+    if(!Strings.isNullOrEmpty(oldValue)){
+      completer = new StringsCompleter(oldValue);
+    }
+    return readLine(prompt, completer, validator);
+  }
+
+  @Override
   public List<CmdHelper> getHelper(String cmd) {
-    return cmdMgr.getHelper(cmd,appContext.getSpace());
+    return cmdSupport.getHelper(cmd,appContext.getSpace());
   }
 
   @Override

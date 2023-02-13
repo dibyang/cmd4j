@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.annotation.PostConstruct;
+import javax.smartcardio.TerminalFactory;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,7 +72,7 @@ public class DemoApp {
         //.color(true)
         .build();
     //AppContext appContext = new AppContextImpl4Boot(context);
-    cmdSupport = new CmdSupportService(appContext, serviceFactory().getBeans(ValuesGetterRegister.class), serviceFactory().getBeans(Cmd.class));
+    cmdSupport = new CmdSupportService(appContext);
 
     //构建命令自动完成器
     ProxyCompleter proxyCompleter = new ProxyCompleter(new CmdMgrCompleter(
@@ -103,6 +104,7 @@ public class DemoApp {
   }
 
   public static void main(String[] args) {
+
     SpringApplicationBuilder builder = new SpringApplicationBuilder();
     builder.sources(DemoApp.class);
     builder.application().setAllowBeanDefinitionOverriding(true);

@@ -1,5 +1,7 @@
 package net.xdob.cmd4j.service;
 
+import com.ls.luava.os.OSProxy;
+
 public interface AppContext {
   void setToken(String token);
   String getToken();
@@ -13,4 +15,6 @@ public interface AppContext {
   void submit(Runnable runnable);
   void delay(int ms);
   void exit();
+  OSProxy getOSProxy();
+  ServiceFactory getServiceFactory();
 }
