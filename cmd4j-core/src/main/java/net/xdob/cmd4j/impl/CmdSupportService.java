@@ -98,7 +98,23 @@ public class CmdSupportService implements CmdSupport {
   @Override
   public void doCommand(String line) {
     Cmd cmd = parseCmd(line);
-    runCmd(cmd);
+    CmdContext context = new CmdContextImpl( this, appContext);
+    Cmd4jOut cmd4JOut = context.newT4mOut();
+    contextThreadLocal.set(context);
+    if(cmd!=null) {
+      try {
+        cmd.preCmd(context);
+        cmd.doCmd(context);
+        cmd.postCmd(context);
+      } catch (Exception e) {
+        cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
+        LOG.warn("doCmd is error", e);
+        proxyCompleter.reset();
+      }
+    }else{
+      cmd4JOut.println("Unknown command:"+line);
+    }
+    contextThreadLocal.set(null);
   }
 
   private Cmd parseCmd(String line) {
@@ -183,29 +199,11 @@ public class CmdSupportService implements CmdSupport {
           LOG.warn("arg is error", e);
           proxyCompleter.reset();
         }
-      } else {
-        System.out.println("unknown command :" + line);
       }
     }
     return cmd;
   }
 
-
-  private void runCmd(Cmd cmd) {
-    CmdContext context = new CmdContextImpl( this, cmd, appContext);
-    Cmd4jOut cmd4JOut = context.newT4mOut();
-    contextThreadLocal.set(context);
-    try {
-      cmd.preCmd(context);
-      cmd.doCmd(context);
-      cmd.postCmd(context);
-    } catch (Exception e) {
-      cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
-      LOG.warn("doCmd is error", e);
-      proxyCompleter.reset();
-    }
-    contextThreadLocal.set(null);
-  }
 
   private Option getOption(List<Option> opts, List<String> names) {
     Option opt= opts.stream()

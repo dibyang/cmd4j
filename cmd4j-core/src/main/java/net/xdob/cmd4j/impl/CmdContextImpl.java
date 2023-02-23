@@ -23,13 +23,11 @@ public class CmdContextImpl implements CmdContext {
   private volatile boolean running = true;
 
   private final CmdSupport cmdSupport;
-  private final Cmd cmd;
   private final AppContext appContext;
 
 
-  public CmdContextImpl(CmdSupport cmdSupport, Cmd cmd, AppContext appContext) {
+  public CmdContextImpl(CmdSupport cmdSupport, AppContext appContext) {
     this.cmdSupport = cmdSupport;
-    this.cmd = cmd;
     this.appContext = appContext;
   }
 
