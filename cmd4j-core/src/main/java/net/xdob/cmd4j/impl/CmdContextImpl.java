@@ -100,7 +100,7 @@ public class CmdContextImpl implements CmdContext {
     }else{
       cmdSupport.getProxyCompleter().reset();
     }
-    String line = cmdSupport.getLineReader().readLine(prompt, mask);
+    String line = cmdSupport.getLineReader().readLine(prompt, mask).trim();
     cmdSupport.getProxyCompleter().reset();
     running=!line.equalsIgnoreCase("q")&&!line.equalsIgnoreCase("quit");
 
