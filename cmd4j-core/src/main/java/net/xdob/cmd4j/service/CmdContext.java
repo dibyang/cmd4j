@@ -6,6 +6,7 @@ import net.xdob.cmd4j.model.CmdHelper;
 import org.jline.reader.Completer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -26,6 +27,12 @@ public interface CmdContext {
   String readLine(String prompt, Predicate<String> validator);
   String readLine(String prompt, Completer completer, Predicate<String> validator);
   String readLine(String prompt, String oldValue, Predicate<String> validator);
+
+  <T> Optional<T> readValue(Class<T> clazz, String prompt);
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, Predicate<T> validator);
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, Completer completer, Predicate<T> validator);
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, T oldValue, Predicate<T> validator);
+
   List<CmdHelper> getHelper(String cmd);
   AppContext getAppContext();
 }

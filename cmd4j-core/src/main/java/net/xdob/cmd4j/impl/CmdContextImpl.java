@@ -3,6 +3,7 @@ package net.xdob.cmd4j.impl;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.ls.luava.common.Types2;
 import net.xdob.cmd4j.model.OutColor;
 import net.xdob.cmd4j.service.*;
 import net.xdob.cmd4j.model.CmdHelper;
@@ -12,6 +13,7 @@ import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -133,6 +135,31 @@ public class CmdContextImpl implements CmdContext {
       completer = new StringsCompleter(oldValue);
     }
     return readLine(prompt, completer, validator);
+  }
+
+
+  @Override
+  public <T> Optional<T> readValue(Class<T> clazz, String prompt) {
+    String line = readLine(prompt);
+    return Types2.cast(line,clazz);
+  }
+
+  @Override
+  public <T> Optional<T> readValue(Class<T> clazz, String prompt, Predicate<T> validator) {
+    String line = readLine(prompt,v->validator.test(Types2.cast(v,clazz).orElse(null)));
+    return Types2.cast(line,clazz);
+  }
+
+  @Override
+  public <T> Optional<T> readValue(Class<T> clazz, String prompt, Completer completer, Predicate<T> validator) {
+    String line = readLine(prompt, completer,v->validator.test(Types2.cast(v,clazz).orElse(null)));
+    return Types2.cast(line,clazz);
+  }
+
+  @Override
+  public <T> Optional<T> readValue(Class<T> clazz, String prompt, T oldValue, Predicate<T> validator) {
+    String line = readLine(prompt, String.valueOf(oldValue), v->validator.test(Types2.cast(v,clazz).orElse(null)));
+    return Types2.cast(line,clazz);
   }
 
   @Override
