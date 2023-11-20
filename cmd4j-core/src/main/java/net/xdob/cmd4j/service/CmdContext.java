@@ -24,14 +24,32 @@ public interface CmdContext {
   String readLine(String prompt, Completer completer);
   String readLine(String prompt, Character mask);
   String readLine(String prompt, Character mask, Completer completer);
-  String readLine(String prompt, Predicate<String> validator);
-  String readLine(String prompt, Completer completer, Predicate<String> validator);
-  String readLine(String prompt, String oldValue, Predicate<String> validator);
+
+  String readLine2(String prompt, Validator<String> validator);
+  String readLine2(String prompt, Completer completer, Validator<String> validator);
+  String readLine2(String prompt, String oldValue, Validator<String> validator);
+
+  @Deprecated
+  String readLine(String prompt, Predicate<String> predicate);
+  @Deprecated
+  String readLine(String prompt, Completer completer, Predicate<String> predicate);
+  @Deprecated
+  String readLine(String prompt, String oldValue, Predicate<String> predicate);
+
+
 
   <T> Optional<T> readValue(Class<T> clazz, String prompt);
-  <T> Optional<T> readValue(Class<T> clazz, String prompt, Predicate<T> validator);
-  <T> Optional<T> readValue(Class<T> clazz, String prompt, Completer completer, Predicate<T> validator);
-  <T> Optional<T> readValue(Class<T> clazz, String prompt, T oldValue, Predicate<T> validator);
+
+  <T> Optional<T> readValue2(Class<T> clazz, String prompt, Validator<T> validator);
+  <T> Optional<T> readValue2(Class<T> clazz, String prompt, Completer completer, Validator<T> validator);
+  <T> Optional<T> readValue2(Class<T> clazz, String prompt, T oldValue, Validator<T> validator);
+
+  @Deprecated
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, Predicate<T> predicate);
+  @Deprecated
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, Completer completer, Predicate<T> predicate);
+  @Deprecated
+  <T> Optional<T> readValue(Class<T> clazz, String prompt, T oldValue, Predicate<T> predicate);
 
   List<CmdHelper> getHelper(String cmd);
   AppContext getAppContext();
