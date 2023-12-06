@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 public class CmdContextImpl implements CmdContext {
 
   public static final String INPUT_FORMAT_IS_NOT_VALID = "Input format is not valid.";
+  public static final String Q_FOR_QUIT = "q for quit>";
   private volatile boolean running = true;
 
   private final CmdSupport cmdSupport;
@@ -73,7 +74,7 @@ public class CmdContextImpl implements CmdContext {
 
   @Override
   public String readLine() {
-    return readLine("q for quit>");
+    return readLine(Q_FOR_QUIT);
   }
 
   @Override
@@ -103,10 +104,12 @@ public class CmdContextImpl implements CmdContext {
     }
     String line = cmdSupport.getLineReader().readLine(prompt, mask).trim();
     cmdSupport.getProxyCompleter().reset();
-    running=!line.equalsIgnoreCase("q")&&!line.equalsIgnoreCase("quit");
+    if(prompt.contains(Q_FOR_QUIT)) {
+      running = !line.equalsIgnoreCase("q") && !line.equalsIgnoreCase("quit");
 
-    if(!running){
-      return "";
+      if (!running) {
+        return "";
+      }
     }
     cmdSupport.getLineReader().printAbove("\033[1A");
     return line;
@@ -161,52 +164,60 @@ public class CmdContextImpl implements CmdContext {
   @Override
   public <T> Optional<T> readValue(Class<T> clazz, String prompt) {
     String line = readLine(prompt);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
   public <T> Optional<T> readValue2(Class<T> clazz, String prompt, Validator<T> validator) {
     Validator<String> validator1 = v -> validator.valid(Types2.cast(v, clazz).orElse(null));
     String line = readLine2(prompt, validator1);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
   public <T> Optional<T> readValue2(Class<T> clazz, String prompt, Completer completer, Validator<T> validator) {
     Validator<String> validator1 = v -> validator.valid(Types2.cast(v, clazz).orElse(null));
     String line = readLine2(prompt, completer, validator1);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
   public <T> Optional<T> readValue2(Class<T> clazz, String prompt, T oldValue, Validator<T> validator) {
     Validator<String> validator1 = v -> validator.valid(Types2.cast(v, clazz).orElse(null));
     String line = readLine2(prompt, String.valueOf(oldValue), validator1);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
   public <T> Optional<T> readValue(Class<T> clazz, String prompt, Predicate<T> predicate) {
     Validator<String> validator = v->
-            predicate.test(Types2.cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
+            predicate.test(cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
     String line = readLine2(prompt, validator);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
   public <T> Optional<T> readValue(Class<T> clazz, String prompt, Completer completer, Predicate<T> predicate) {
     Validator<String> validator = v->
-            predicate.test(Types2.cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
+            predicate.test(cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
     String line = readLine2(prompt, completer, validator);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
+  }
+
+  private <T> Optional<T> cast(String v, Class<T> clazz) {
+    try {
+      return Types2.cast(v, clazz);
+    }catch (Exception e){
+     return  Optional.empty();
+    }
   }
 
   @Override
   public <T> Optional<T> readValue(Class<T> clazz, String prompt, T oldValue, Predicate<T> predicate) {
     Validator<String> validator = v->
-            predicate.test(Types2.cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
+            predicate.test(cast(v, clazz).orElse(null))?null: INPUT_FORMAT_IS_NOT_VALID;
     String line = readLine2(prompt, String.valueOf(oldValue), validator);
-    return Types2.cast(line, clazz);
+    return cast(line, clazz);
   }
 
   @Override
