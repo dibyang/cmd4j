@@ -5,7 +5,7 @@
 
 ## Sample Code for 
 
-
+CliConfig 配置需要的bean
 ```java
 //示例代码
 //CliConfig 配置需要的bean
@@ -35,7 +35,9 @@ public class CliConfig {
   }
 
 }
-
+```
+DemoCli 启动spring boot应用
+```java
 //DemoCli 启动spring boot应用
 @SpringBootApplication
 public class DemoCli {
