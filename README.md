@@ -77,5 +77,28 @@ public class DemoCli {
 }
 
 ```
+示例的扩展命令代码
+```java
+//HelloCmd
+@Component
+@Cmd4jCmd(value = "say hello.",eg={"hello"})
+public class HelloCmd extends BaseCmd {
 
+  @Override
+  public String name() {
+    return "hello";
+  }
+
+  @Override
+  public void doCmd(CmdContext context) {
+    String name = context.readLine("what is your name?");
+    Cmd4jOut cmd4jOut = context.newT4mOut();
+    if(name!=null) {
+      cmd4jOut.println("hello " + name + ".");
+    }else{
+      cmd4jOut.println("name can not be null");
+    }
+  }
+}
+```
 
