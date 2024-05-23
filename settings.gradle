@@ -5,4 +5,5 @@
 rootProject.name = 'cmd4j'
 include 'cmd4j-core'
 include 'cmd4j-boot'
+include 'demo-cli'
 
