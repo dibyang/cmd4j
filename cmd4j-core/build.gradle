@@ -1,9 +1,9 @@
 
 dependencies {
-  implementation("org.fusesource.jansi:jansi:2.4.0")
-  implementation("net.java.dev.jna:jna:5.10.0")
-  compile("net.xdob.luava:luava:${luava_version}")
-  compile("org.jline:jline:${jline_version}")
-  compile("me.tongfei:progressbar:0.9.3")
+  api("org.fusesource.jansi:jansi:${jansi_version}")
+  api("net.java.dev.jna:jna:${jna_version}")
+  api("org.jline:jline:${jline_version}")
+  implementation("net.xdob.luava:luava:${luava_version}")
+  implementation("me.tongfei:progressbar:${progressbar_version}")
 }
 
