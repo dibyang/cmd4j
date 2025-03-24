@@ -1,9 +1,13 @@
 
+
 dependencies {
   api("org.fusesource.jansi:jansi:${jansi_version}")
   api("net.java.dev.jna:jna:${jna_version}")
   api("org.jline:jline:${jline_version}")
-  implementation("net.xdob.luava:luava:${luava_version}")
+  implementation("net.xdob.luava:luava:${luava_version}"){
+    exclude group: "com.google.guava"
+  }
+  compileOnly("com.google.guava:guava:${guava_version}")
   implementation("me.tongfei:progressbar:${progressbar_version}")
 }
 

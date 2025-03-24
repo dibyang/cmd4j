@@ -19,7 +19,6 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'net.researchgate.release'
 
@@ -86,16 +85,6 @@ subprojects {
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
 
-
-  afterReleaseBuild.dependsOn uploadArchives
-
-//    configurations {
-//        inline
-//        compile.extendsFrom(inline)
-//        plugin{
-//            transitive = false
-//        }
-//    }
   configurations.all {
     resolutionStrategy {
       // cache dynamic versions for 10 seconds
@@ -167,7 +156,7 @@ subprojects {
 
   publishing {
     publications {
-      mavenJava(MavenPublication) {
+      maven(MavenPublication) {
         groupId = project.group
         artifactId = project.name
         version = project.version
@@ -224,10 +213,9 @@ subprojects {
   }
 
   signing {
-    sign publishing.publications.mavenJava
+    sign publishing.publications.maven
   }
 
-  afterReleaseBuild.dependsOn publishMavenJavaPublicationToMavenRepository
 
 
 }
