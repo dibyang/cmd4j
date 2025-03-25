@@ -40,6 +40,10 @@ public @interface Cmd4jArg {
    */
   boolean forced() default false;
 
+  String file() default "";
+
+  String fileName() default "";
+
   /**
    * 动态自动完成的名称
    * @return

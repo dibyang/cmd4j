@@ -13,13 +13,16 @@ import net.xdob.cmd4j.annotation.Cmd4jCmd;
 import net.xdob.cmd4j.annotation.Cmd4jOption;
 import net.xdob.cmd4j.completer.*;
 import net.xdob.cmd4j.model.*;
+import org.jline.builtins.Completers;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.completer.EnumCompleter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -255,6 +258,7 @@ public class CmdSupportService implements CmdSupport {
         cmdArg.setForced(annArg.forced());
         cmdArg.setDesc(annArg.desc());
         cmdArg.setDynamic(annArg.dynamic());
+        cmdArg.setFile(annArg.file());
         if(cmdArg.getType()==Integer.class||cmdArg.getType()==int.class){
           cmdArg.getCompleter().setCompleter(new IntCompleter().setMin(annArg.min()).setMax(annArg.max()));
         }else if(Enum.class.isAssignableFrom(cmdArg.getType())){
@@ -262,7 +266,9 @@ public class CmdSupportService implements CmdSupport {
         }else if(cmdArg.hasValues()){
           cmdArg.getCompleter().setCompleter(new StringsCompleter2(cmdArg.getValues()).setForced(cmdArg.isForced()));
         } else {
-          if(!Strings.isNullOrEmpty(cmdArg.getDynamic())){
+          if(!Strings.isNullOrEmpty(cmdArg.getFile())){
+            cmdArg.getCompleter().setCompleter(new Completers.FilesCompleter(Paths.get(cmdArg.getFile())));
+          }else if(!Strings.isNullOrEmpty(cmdArg.getDynamic())){
             ValuesCompleter valuesCompleter = getValuesCompleter(cmdArg.getDynamic());
             cmdArg.getCompleter().setCompleter(valuesCompleter);
           }
@@ -304,7 +310,9 @@ public class CmdSupportService implements CmdSupport {
         }else if(opt.hasValues()){
           opt.getCompleter().setCompleter(new StringsCompleter2(opt.getValues()).setForced(opt.isForced()));
         } else {
-          if(!Strings.isNullOrEmpty(opt.getDynamic())){
+          if(!Strings.isNullOrEmpty(opt.getFile())){
+            opt.getCompleter().setCompleter(new Completers.FilesCompleter(Paths.get(opt.getFile())));
+          }else if(!Strings.isNullOrEmpty(opt.getDynamic())){
             ValuesCompleter valuesCompleter = getValuesCompleter(opt.getDynamic());
             opt.getCompleter().setCompleter(valuesCompleter);
           }

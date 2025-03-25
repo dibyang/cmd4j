@@ -21,6 +21,7 @@ public class CmdArg {
   private boolean required;
   private boolean forced;
   private String dynamic;
+  private String file;
   private DynamicCompleter completer;
 
   public String getName() {
@@ -98,6 +99,14 @@ public class CmdArg {
 
   public void setDynamic(String dynamic) {
     this.dynamic = dynamic;
+  }
+
+  public String getFile() {
+    return file;
+  }
+
+  public void setFile(String file) {
+    this.file = file;
   }
 
   public DynamicCompleter getCompleter() {
