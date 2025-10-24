@@ -100,24 +100,28 @@ public class CmdSupportService implements CmdSupport {
 
   @Override
   public void doCommand(String line) {
-    Cmd cmd = parseCmd(line);
-    CmdContext context = new CmdContextImpl( this, appContext);
-    Cmd4jOut cmd4JOut = context.newT4mOut();
-    contextThreadLocal.set(context);
-    if(cmd!=null) {
-      try {
-        cmd.preCmd(context);
-        cmd.doCmd(context);
-        cmd.postCmd(context);
-      } catch (Exception e) {
-        cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
-        LOG.warn("doCmd is error", e);
-        proxyCompleter.reset();
-      }
-    }else{
-      cmd4JOut.println("Unknown command:"+line);
-    }
-    contextThreadLocal.set(null);
+		CmdContext context = new CmdContextImpl(this, appContext);
+		Cmd4jOut cmd4JOut = context.newT4mOut();
+		contextThreadLocal.set(context);
+		if(line!=null&&!line.trim().isEmpty()) {
+			Cmd cmd = parseCmd(line);
+
+			if (cmd != null) {
+				try {
+					cmd.preCmd(context);
+					cmd.doCmd(context);
+					cmd.postCmd(context);
+				} catch (Exception e) {
+					cmd4JOut.println(cmd.name() + " Command aborted.", OutColor.RED);
+					LOG.warn("doCmd is error", e);
+					proxyCompleter.reset();
+				}
+			} else {
+				cmd4JOut.println("Unknown command:" + line);
+			}
+
+		}
+		contextThreadLocal.remove();
   }
 
   private Cmd parseCmd(String line) {
