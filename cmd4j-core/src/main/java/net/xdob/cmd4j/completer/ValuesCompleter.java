@@ -30,7 +30,7 @@ public class ValuesCompleter extends StringsCompleter {
   public void complete(LineReader reader, final ParsedLine commandLine, final List<Candidate> candidates) {
     candidates.clear();
     List<String> values = new ArrayList<>();
-    getter.getValues(values);
+    getter.getValues(values, commandLine);
     for (String value : values) {
       candidates.add(new Candidate(AttributedString.stripAnsi(value), value, null, null, null, null, true));
     }

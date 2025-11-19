@@ -53,7 +53,7 @@ public class CmdSupportService implements CmdSupport {
     List<ValuesGetterRegister> valuesGetterRegisters = appContext.getServiceFactory().getBeans(ValuesGetterRegister.class);
     List<Cmd> cmdList = appContext.getServiceFactory().getBeans(Cmd.class);
     cmds.addAll(cmdList);
-    completers.add(new ValuesCompleter(Cmd.CMD,v->{
+    completers.add(new ValuesCompleter(Cmd.CMD,(v, c)->{
       for (Cmd cmd : getCmds()) {
         v.add(cmd.name());
       }
